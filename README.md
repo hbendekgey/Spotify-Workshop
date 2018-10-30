@@ -135,7 +135,114 @@ library.to_csv("filename.csv", index=None)
 
 ## Operating on DataFrames
 
-In this section, we will play with the package called `pandas`, which is the primary package for data clearning, wrangling and analysis in Python. We will introduce the concept of _DataFrame_ and _Series_ and cover the basic commands, ways to do indexing, some operations on different columns, and how to combine dataframes. Open `02-data-cleaning-and-wrangling` to get started!
+In this section, we will play with the package called `pandas`, which is the primary package for data clearning, wrangling and analysis in Python. We will introduce the concept of _DataFrame_ and _Series_ and cover the basic commands, ways to do indexing, some operations on different columns, and how to combine dataframes. Open `02-data-cleaning-and-wrangling` to get started!  
+
+We will start by importing the necessary packages:
+```
+import pandas as pd
+import numpy as np
+%matplotlib inline
+```
+
+`pandas` is the package used for handling datasets and  `numpy` is used for numeric and matrix operations. `%matplotlib inline` is there so that the plots are rendered directly below each cell.
+
+Then, we will start by loading in `harry.csv` by calling:
+
+```
+df = pd.read_csv('<file_name>.csv')
+```
+
+This should read in the `.csv` file into the object called `df`. We try print out the type of `df` by calling `type(df)`. You will see that it is of type `pandas.core.frame.DataFrame`. Now there are a lot of very basic, but useful commands you could call on this `df` object. Explore each of the following commands in __separate__ cells:
+
+```
+# Print all column names
+df.columns
+# Or
+list(df)
+
+# Print head/tail 5 rows of df
+df.head() # Or df.tail()
+
+# Print df info
+df.info()
+
+# Print shape (dimensions) of df 
+df.shape
+
+# Print data types of each column
+df.dtypes
+
+# Print summary stats of df's numeric columns
+df.describe()
+
+# Print correlations in between numeric columns in df
+df.corr()
+```
+
+Explore the output of each command and see what they do! In the following, we move on to talk about indexing using `pandas`. Indexing basically means "selecting" :^) . Again, execute each of the commands below in __separate__ cells:
+
+```
+# Selecting one column: 'acousticness'
+df['acousticness'] # This might be too long, to just print out the first 5 by 'df['acousticness'][:5]'
+
+# Print out the type of this column:
+type(df['acousticness'])
+
+# Index both: 'acousticness', 'danceability'
+df[['acousticness', 'danceability']]
+
+# Indexing the first row using .loc
+df.loc[0, :]
+
+# Indexing using a logic: acousticness > 0.95
+df[df['acousticness'] > 0.95]
+
+# Indexing using combos of logic: acousticness > 0.95 && mode == 0
+df[(df['acousticness'] > 0.95) & (df['mode']== 1)]
+```
+
+Now we have explored the commands for indexing, let's move on to talk about commands on the columns, such as how to extract information from existing columns and how to create new columns:
+
+```
+# Create a new column called "acousticness_2" that is 2 * values in acousticness
+df['acousticness_2'] = df['acousticness'] * 2
+df.head()
+
+# Print the unique 'key', number of unique artists
+df['key'].unique()
+
+# The value counts for 'key'
+df['key'].unique()
+
+# Percentage of artists
+df['key'].unique()/len(df)
+
+# Quick histogram of 'acousticness'
+df['acousticness'].hist()
+
+# Groupby 'key', agg fuctions
+df.groupby('key').agg(['mean', 'median'])
+
+# Crosstabs on 'key' and 'mode'
+pd.crosstab(df['key'], df['mode'])
+```
+
+These are all useful commands you may use in your Data Science journey onwards! Finally, we will look at how to concatenate and merge DataFrames:
+
+```
+# Read in YOUR data set
+me = pd.read_csv('me.csv')
+
+# Set a 'label' column for each dataframe
+df['label'] = 0
+me['label'] = 1
+
+# Append/cancat two datasets!
+append = df.append(me)
+append.shape
+``` 
+
+This concludes section 2!
 
 ## Visualization
 
