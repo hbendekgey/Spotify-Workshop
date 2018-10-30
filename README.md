@@ -398,7 +398,7 @@ max_depth = 5
 clf = tree.DecisionTreeClassifier(max_depth = max_depth)
 
 # Fit classifier
-clf.fit(__, __)
+clf.fit(X_train, y_train)
 ```
 
 The Decision Tree algorithm utilitzes a binary tree structure and goes through all possible cutting points within each feature to greedily splits the data set into homogeneous regions with regard to the _target_, i.e. it's trying to find purer and purer nodes in terms of percentage of each class. Because splits happens on the features, some features are more important than others. And the `sklearn` package gives us the _feature importance_ for free!!
