@@ -1,57 +1,150 @@
 # Spotify Data Science Project
 
-### Getting the Data
+## Requirements
 
-1. Go to https://developer.spotify.com/dashboard and make a client.
+This project relies on Anaconda, which you can download:
+	
+- For mac: https://conda.io/docs/user-guide/install/macos.html
+- For window: https://conda.io/docs/user-guide/install/windows.html
+- For linux: https://conda.io/docs/user-guide/install/linux.html
+    Be sure to downloard the “Anaconda” version
 
-2. Go to https://accounts.spotify.com/authorize?client_id={yourclientid}&redirect_uri=https://www.spotify.com&scope=user-library-read&response_type=token
-
-3. notice url is https://www.spotify.com/us/#access_token={token}&token_type=Bearer&expires_in=3600 
-Save that token.
-
-4. Make a curl request for songs by going to the command line (terminal) and writing:
+If you want to use your own data, make sure you have a login for a Spotify account. You will also need to use `pip`, a package manager of Python. Check if you have it installed by going into the Terminal/Command Line and type 
 ```
-curl -X GET "https://api.spotify.com/v1/me/tracks" -H "Authorization: Bearer {yourtoken}" > songs.json
+pip -V
+```
+ This will tell you what version of pip, if at all, is on your machine. 
+
+Download `spotipy` by executing in Terminal/Command line:
+```
+pip3 install spotipy
+```
+## Overview
+
+1. Get set up and collect data.
+2. How do we operate on our data? What is `pandas`? `numpy`?
+3. Simple visualization
+4. Supervised learning: Classification and Regression
+5. Unsupervised learning: Clustering and Dimensionality Reduction
+
+
+## Getting the Data
+
+Go to https://developer.spotify.com/dashboard and make a client.
+
+For this project, we recommend working in a Jupyter notebook. In order to do this, navigate to a folder you want to do work in and type 
+```
+jupyter notebook
 ```
 
-Now you have a file named songs.json which contains all songs in your music library!
+This should open up a browser window for you to work in. Hit New > Notebook > Python 3 to open a new file to work in.
 
-5. bla
+You can type all of your code into the cells you see and run by hitting Shift+Enter or hitting the "Run" key. 
+
+Let's start by importing what we need (and making sure all the imports work)
 
 ```
-curl -X GET "https://api.spotify.com/v1/audio-features/{songid}" -H "Authorization: Bearer {yourtoken}"
+import sys
+import spotipy
+import spotipy.util as util
+import pandas as pd
 ```
 
-Now we have all of the song data!
+Now we need to get an access token to authenticate ourselves with Spotify (so they'll give us data about ourselves).  
 
-6. Get that into a dataframe in Python and play around with it!
+Go to developer.spotify.com/dashboard and create a new client. You should see a client_id and client_secret section. Now we get our token into our program:
+
+```
+scope = 'user-library-read'
+username = 'redacted'
+cid = 'redacted'
+csecret = 'redacted'
+ruri = 'https://www.spotify.com'
+token = util.prompt_for_user_token(username, scope, client_id=cid,client_secret=csecret,redirect_uri=ruri)
+```
+
+This will redirect you to Spotify's homepage. But if you look in the url, you'll see that your access token is written there! Copy the entire url back into jupyter, and you'll have your token! Let's check it with
+
+```
+token
+```
+
+Now we're ready to make requests against the API. Let's try
+
+```
+sp = spotipy.Spotify(auth=token)
+results = sp.current_user_saved_tracks(limit=50)
+```
+
+`results` holds the data of the first 50 songs in your library. We need to parse it.
+
+```
+artists = []
+songs = []
+ids = []
+
+for item in results['items']:
+    track = item['track']
+    ids.append(track['id'])
+    songs.append(track['name'])
+    artists.append(track['artists'][0]['name'])
+```
+
+To get audio features, we call the following function. We also put it into a pandas dataframe, a handy object that will help us play with our data later
+
+```
+df = pd.DataFrame(sp.audio_features(ids))
+```
+
+We can only request 50 items at a time. If we want to iterate through, we have to do something more complex
+
+```
+offset = 50
+results = sp.current_user_saved_tracks(limit=50,offset=50)
+
+while(len(results['items']) > 0):
+    ids = []
+    for item in results['items']:
+        track = item['track']
+        ids.append(track['id'])
+        songs.append(track['name'])
+        artists.append(track['artists'][0]['name'])
+    df = df.append(pd.DataFrame(sp.audio_features(ids)), ignore_index=True)
+    offset = offset + 50
+    results = sp.current_user_saved_tracks(limit=50,offset=offset)
+```
+Finally, we select the columns we want, and add on the song names and artist names. 
+
+```
+library = df[['acousticness', 'danceability', 'energy','instrumentalness','key','liveness','loudness','mode','speechiness','tempo','valence']].copy()
+library['song_title'] = songs
+library['artist'] = artists
+```
+
+To see what the dataframe looks like, try
+```
+library.head()
+```
+
+If you want to share your data, write it to a csv file with
+
+```
+library.to_csv("filename.csv", index=None)
+```
 
 
-### Topics
+## Operating on DataFrames
 
-Ahead of time: get Anaconda (necessary)
+## Visualization
 
-If you want your own data: get pip, use pip to install spotipy, and make sure you can log in to your spotify account
+## Supervised Learning
 
+## Unsupervised Learning
 
-1. Get set up, get data (20 min) [Harry]
-2. How do we operate on our data? (pandas, numpy, etc.) (20-30 min) [Zihao]
+## Conclusion
 
-    a. How to combine data frames
-3. Simple visualization of two coordinates (plot danceability vs tempo) (5-10 min) [Zihao]
-4. Classification and Regression, and packages that will be helpful [Zihao]
-5. Clustering and Dimensionality Reduction, and packages that will be helpful [Harry]
-6. Have example usage up, and set people loose
+Now you're ready to play with your data and see what you can find. Best of all, whatever you find is specific to you! Here are some fun and/or useful links to better understand the data:
 
-### Need to be made:
-
-Zihao: make notebook file for 2-4
-
-Harry: figure out data collecting details, make notebook for 5/add it to end of Zihao's notebook file when sent
-
-### Helpful Sites:
-
-1. https://developer.spotify.com/documentation/web-api/reference/tracks/get-audio-features/
-
-2. https://pudding.cool/2018/05/similarity/
+- [Spotify API documentation for what the audio features are](https://developer.spotify.com/documentation/web-api/reference/tracks/get-audio-features/)
+- [Data Science article discussing why pop music all sounds the same](https://pudding.cool/2018/05/similarity/)
 
