@@ -209,10 +209,10 @@ df['acousticness_2'] = df['acousticness'] * 2
 df.head()
 
 # Print the unique 'key', number of unique artists
-df['key'].unique()
+df['key'].unique() # Also try df['key'].nunique()
 
 # The value counts for 'key'
-df['key'].unique()
+df['key'].value_counts()
 
 # Percentage of artists
 df['key'].unique()/len(df)
@@ -221,7 +221,7 @@ df['key'].unique()/len(df)
 df['acousticness'].hist()
 
 # Groupby 'key', agg fuctions
-df.groupby('key').agg(['mean', 'median'])
+df.groupby('key').agg(['mean', 'median']) # Also try 'count', 'sum', ...
 
 # Crosstabs on 'key' and 'mode'
 pd.crosstab(df['key'], df['mode'])
@@ -326,6 +326,175 @@ In this section, we will talk about supervised learning - classification and reg
 2. Regression - using linear regression to predict loudness of the songs  
 
 We will also cover ways to perform model assessment through techniques like train-test-split and confusion matrix. Open `04-regression-and-classification` to get started!
+
+Again, we start by loading in the packages of the dataframes:
+```
+import pandas as pd
+import seaborn as sns
+import numpy as np
+import matplotlib.pyplot as plt
+import sklearn
+from sklearn.metrics import confusion_matrix, mean_squared_error
+from sklearn import tree, linear_model
+from sklearn.model_selection import train_test_split
+
+np.random.seed(4747)
+```
+```
+# Read in the two csvs
+h = pd.read_csv('harry.csv')
+m = pd.read_csv('me.csv')
+```
+
+We will first explore classification - we will predict if a song comes from you or Harry! To do this, recall that we can create artifical labels for each dataframe:
+```
+# Create the labels
+h['label'] = 'harry'
+m['label'] = 'me'
+
+# Merge the two datasets
+df = pd.concat([h,m])
+
+df.shape
+```
+
+Then we explore the value counts to see how many come from each dataframe:
+```
+# Look at value counts of 'label'
+df['label'].value_counts()
+```
+
+After that, we will define the `predictors`, or the _features_ of our model, and the `target`, or the _label_ we are trying to predict:
+```
+# Define the predictors (use list comprehension!, not in ['song_title', 'artist', 'label']) and target
+predictors = [c for c in list(df) if c not in ['song_title', 'artist', 'label']]
+target = 'label'
+
+print(predictors)
+```
+
+Now we will extract the actual data used to train the model and the labels that inform training:
+```
+# Define X_data and y_data as the "values" of df
+X_data = df[predictors]
+y_data = df[target]
+```
+
+Then, we split the dataframe into training set and testing set. This is important because we want to get a sense of how well our model performed:
+```
+# Define training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(X_data,
+                                                    y_data,
+                                                    test_size = 0.25, # how much to put to test set
+                                                    random_state = 47) # this makes the split reproducible
+```
+
+Now it's the exciting part - we will train a Decision Tree to classify the songs! We will also play around with the idea of a _tuning parameter_, which defines the model complexity. We will talk more about this in the workshop:
+```
+# One tuning parameter
+max_depth = 5
+
+# Define clf
+clf = tree.DecisionTreeClassifier(max_depth = max_depth)
+
+# Fit classifier
+clf.fit(__, __)
+```
+
+The Decision Tree algorithm utilitzes a binary tree structure and goes through all possible cutting points within each feature to greedily splits the data set into homogeneous regions with regard to the _target_, i.e. it's trying to find purer and purer nodes in terms of percentage of each class. Because splits happens on the features, some features are more important than others. And the `sklearn` package gives us the _feature importance_ for free!!
+```
+# Look at feature importance
+{c:str(round(v,4)) for c,v in zip(predictors, clf.feature_importances_)}
+```
+
+We notice that `instrumentalness` seems to be really important. Let's verify that through a barplot:
+```
+# Let's take a look!
+sns.barplot(data = df, x = 'label', y = 'instrumentalness')
+```
+ 
+At the end of the day, we use machine learning model to inform future decisions. So now it's the time to do predictions!
+```
+# Prediction!
+preds = clf.predict(X_test)
+print("Accuracy is:", sum(a == b for a,b in zip(preds, y_test))/len(preds)) # Accuracy is: 0.75142
+```
+
+Not too bad! Let's also take a look at the _confusion matrix_, which is an important tool used to look at false positive and false negatives (not in this case, but...):
+```
+# Look at the confusion matrix (test, pred)
+conf_mat = confusion_matrix(y_test, preds)
+sns.heatmap(conf_mat, annot = True, fmt='g')
+plt.ylabel('True label')
+plt.xlabel('Predicted label')
+```
+
+You can also normalize the confusion matrix by the actual labels or the predicted labels:
+```
+# Normalized conf_mat
+conf_mat = conf_mat / conf_mat.sum(axis=1)[:, np.newaxis]
+conf_mat
+
+sns.heatmap(conf_mat, annot = True)
+plt.ylabel('True label')
+plt.xlabel('Predicted label')
+```
+
+
+Okay, enough of the classification stuff. Now let's move on to regression - we will predict the `loudness` based on other features we have! We start by defining the predictors and target, extract the values, define train and test sets:
+```
+# Define the predictors and target
+predictors = [c for c in list(df) if c not in ['song_title', 'artist', 'loudness', 'label']]
+target = 'loudness'
+
+print(predictors)
+# Define X_data and y_data
+X_data = df[predictors]
+y_data = df[target]
+
+# Define training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(X_data,
+                                                    y_data,
+                                                    test_size = 0.25,
+                                                    random_state = 47)
+```
+
+We will fit a linear regression model - sorry if it's that that exciting :( - and make the predictions:
+```
+# Create linear regression object
+regr = linear_model.LinearRegression()
+
+# Train the model using the training sets
+regr.fit(X_train, y_train)
+
+# Make predictions using the testing set
+preds = regr.predict(X_test)
+```
+
+A useful metric to gauge the performance of regression model is called `Mean Squared Error`, which is defined by:
+$$MSE = \frac{1}{n}\sum_{i=1}^{n} (\hat{y_i} - y_i)^2$$
+
+Take a look at our performance and think about what that means:
+```
+# Look at MSE
+print("Mean squared error: %.2f"
+      % mean_squared_error(y_test, preds))
+```
+
+We can also plot the predicted values against the actual values:
+```
+# Plot predicted against actual
+plt.scatter(preds, y_test)
+plt.xlabel('Predictions')
+plt.ylabel('Labels')
+plt.xlim(-35, 0)
+plt.xlim(-35, 0)
+```
+Note that it's important to rescale the x and y axis to not give you a fake illusion. Alternatively, we can also look at the distribution of residuals (or the difference between the predictions and the actual labels):
+```
+# Look at residuals
+sns.distplot(y_test - preds)
+```
 
 
 ## Unsupervised Learning
