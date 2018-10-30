@@ -135,9 +135,19 @@ library.to_csv("filename.csv", index=None)
 
 ## Operating on DataFrames
 
+In this section, we will play with the package called `pandas`, which is the primary package for data clearning, wrangling and analysis in Python. We will introduce the concept of _DataFrame_ and _Series_ and cover basic commands, ways to do indexing, and operations on columns. Open `02-data-cleaning-and-wrangling` to get started!
+
 ## Visualization
 
+In this section, we will talk about the packages `matplotlib` and `seaborn`, both used for data visualization in Python. We will cover a range of plots that display different aspects of the dataset. We will also learn how to adjust aesthetics, axis labels and legends, and how to output your plot. Open `03-simple-visualizations` to get started! 
+
 ## Supervised Learning
+
+In this section, we will talk about supervised learning - classification and regression. We will use the package `sklearn` to train machine learning models and understand the basic machine learning pipeline. We will explore:
+1. Classification - using Decision Trees to predict if a song comes from your library or Harry's
+2. Regression - using linear regression to predict loudness of the songs
+We will also cover ways to perform model assessment through techniques like train-test-split and confusion matrix. Open `04-regression-and-classification` to get started!
+
 
 ## Unsupervised Learning
 
