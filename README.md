@@ -145,7 +145,8 @@ In this section, we will talk about the packages `matplotlib` and `seaborn`, bot
 
 In this section, we will talk about supervised learning - classification and regression. We will use the package `sklearn` to train machine learning models and understand the basic machine learning pipeline. We will explore:
 1. Classification - using Decision Trees to predict if a song comes from your library or Harry's
-2. Regression - using linear regression to predict loudness of the songs
+2. Regression - using linear regression to predict loudness of the songs  
+
 We will also cover ways to perform model assessment through techniques like train-test-split and confusion matrix. Open `04-regression-and-classification` to get started!
 
 
