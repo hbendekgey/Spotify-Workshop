@@ -135,7 +135,7 @@ library.to_csv("filename.csv", index=None)
 
 ## Operating on DataFrames
 
-In this section, we will play with the package called `pandas`, which is the primary package for data clearning, wrangling and analysis in Python. We will introduce the concept of _DataFrame_ and _Series_ and cover basic commands, ways to do indexing, and operations on columns. Open `02-data-cleaning-and-wrangling` to get started!
+In this section, we will play with the package called `pandas`, which is the primary package for data clearning, wrangling and analysis in Python. We will introduce the concept of _DataFrame_ and _Series_ and cover the basic commands, ways to do indexing, some operations on different columns, and how to combine dataframes. Open `02-data-cleaning-and-wrangling` to get started!
 
 ## Visualization
 
