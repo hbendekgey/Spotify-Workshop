@@ -248,6 +248,77 @@ This concludes section 2!
 
 In this section, we will talk about the packages `matplotlib` and `seaborn`, both used for data visualization in Python. We will cover a range of plots that display different aspects of the dataset. We will also learn how to adjust aesthetics, axis labels and legends, and how to output your plot. Open `03-simple-visualizations` to get started! 
 
+Again, we start by importing the necessary packages and loading in the data set:
+```
+# Import pandas, matplotlib.pyplot, seaborn, set matplotlib inline
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+%matplotlib inline
+```
+
+```
+# Load in the data set from harry and you!
+ha = pd.read_csv('harry.csv')
+me = pd.read_csv('me.csv')
+```
+
+We will first look at the more basic (and flexible) package called `matplotlib`. Below, we will explore a number of useful graphs:
+```
+# Histogram of 'acousticness' in harry.csv
+plt.hist(ha['acousticness'])
+
+# Add x, y-axis, title
+plt.hist(ha['acousticness'])
+plt.xlabel('acousticness')
+plt.ylabel('Frequency')
+plt.title('Distribution of Acousticness')
+
+# Scatter plot between 'energy', 'loudness'
+plt.scatter(ha['energy'], ha['loudness'])
+
+# Change color of points and the markers
+plt.scatter(ha['energy'], ha['loudness'], c = 'r', marker = '+') # Explore c = 'b', 'g', 'k'..., and marker = '*', ',', 'v', '2'...
+
+# Add labels and display labels using legend
+plt.scatter(ha['energy'], ha['loudness'], c = 'r', marker = '+', label = 'harry')
+plt.scatter(me['energy'], me['loudness'], c = 'g', marker = '2', label = 'me')
+plt.legend()
+
+# Save a plot to disk
+plt.scatter(ha['energy'], ha['loudness'], c = 'r', marker = '+', label = 'harry')
+plt.scatter(me['energy'], me['loudness'], c = 'g', marker = '2', label = 'me')
+plt.legend()
+plt.savefig('plots/cool_plot', fmt = 'png', dpi = 300)
+```
+
+This is already pretty cool, but we have something coolER - `seaborn`. `seaborn` is a package built on top of `matplotlib` and it incorporates amazing functionalities. Let's get started:
+
+```
+# Plot distribution of 'acousticness'
+sns.distplot(ha['acousticness'])
+
+# jointplot: fancy joint-distributions for 'energy', 'loudness', explore kind = 'kde'
+sns.jointplot(data = ha, x = 'energy', y = 'loudness', kind = 'kde')
+
+# countplot: count number of occurrences for each 'key', explore using x = 'key' and y = 'key'
+sns.countplot(data = ha, x = 'key')
+
+# barplot: plot averge 'energy' per 'key'
+sns.barplot(data = ha, x = 'key', y = 'energy')
+
+# swarmplot: for 'key' and 'energy', explore hue = 'mode'
+sns.swarmplot(data = ha, x = 'key', y = 'energy')
+
+# pairplot: scatter plot for multiple columns at the same time
+# use: 'acousticness', 'loudness', 'energy', 'key', explore hue = 'key'
+sns.pairplot(ha[['acousticness', 'loudness', 'energy', 'key']])
+
+# regplot: 'energy' and 'loudness'
+sns.regplot(data = ha, x = 'energy', y = 'loudness')
+```
+
 ## Supervised Learning
 
 In this section, we will talk about supervised learning - classification and regression. We will use the package `sklearn` to train machine learning models and understand the basic machine learning pipeline. We will explore:
