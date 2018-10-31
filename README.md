@@ -71,7 +71,7 @@ ruri = 'https://www.spotify.com'
 token = util.prompt_for_user_token(username, scope, client_id=cid,client_secret=csecret,redirect_uri=ruri)
 ```
 
-This will redirect you to Spotify's homepage. But if you look in the url, you'll see that your access token is written there! Copy the entire url back into jupyter, and you'll have your token! Let's check it with
+The username doesn't really matter, but the client id and client secret should be copied from your client. Running this will redirect you to Spotify's homepage. It will also prompt you to log in! This will be the account whose library you will have access to. After you've logged in, look in the url and you'll see that your access token is written there! Copy the entire url back into jupyter, and you'll have your token. Let's check it with
 
 ```
 token
