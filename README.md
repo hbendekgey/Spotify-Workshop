@@ -1,5 +1,8 @@
 # Spotify Data Science Project
 
+Spotify encodes all songs as a handful of metrics, like 'energy' and 'danceability'. These values are used to suggest new songs to you based on the ones you currently like. Spotify's API makes it easy to download your own library of saved songs and plot these variables. This makes it a perfect environment for practicing data science and machine learning methods, and noticing patterns that are specific to you!
+
+
 ## Requirements
 
 This project relies on Anaconda, which you can download:
@@ -19,13 +22,16 @@ Download `spotipy` by executing in Terminal/Command line:
 ```
 pip3 install spotipy
 ```
+
+There are a lot of ways to have python installed on your machine, and many of them lead to different problems and different requirements. If your system is not recognizing `spotipy` even after installing it with pip, try `conda install spotipy`.
+
 ## Overview
 
-1. Get set up and collect data.
-2. How do we operate on our data? What is `pandas`? `numpy`?
-3. Simple visualization
-4. Supervised learning: Classification and Regression
-5. Unsupervised learning: Clustering and Dimensionality Reduction
+1. [Get set up and collect data.](#Getting-the-Data)
+2. [How do we operate on our data?](#Operating-on-DataFrames) What is `pandas`? `numpy`?
+3. [Simple visualization](#Visualization)
+4. [Supervised learning: Classification and Regression](#Supervised-Learning)
+5. [Unsupervised learning: Clustering and Dimensionality Reduction](#Unsupervised-Learning)
 
 
 ## Getting the Data
@@ -37,9 +43,9 @@ For this project, we recommend working in a Jupyter notebook. In order to do thi
 jupyter notebook
 ```
 
-This should open up a browser window for you to work in. Hit New > Notebook > Python 3 to open a new file to work in.
+This should open up a browser window for you to work in. If it's not working, you need to install Anaconda. Look through the [Requirements](#Requirements) section. 
 
-You can type all of your code into the cells you see and run by hitting Shift+Enter or hitting the "Run" key. 
+Hit New > Notebook > Python 3 to open a new file to work in. You can type all of your code into the cells you see and run by hitting Shift+Enter or hitting the "Run" key. 
 
 Let's start by importing what we need (and making sure all the imports work)
 
@@ -498,6 +504,105 @@ sns.distplot(y_test - preds)
 
 
 ## Unsupervised Learning
+
+Let's return to our original dataset
+
+```
+library = pd.read_csv('<file_name>.csv')
+```
+
+Unsupervised learning is the process of trying to learn from data that has not been labeled yet. For example, you might think the songs you like fall under a few "groups," but you don't know what those groups are. This is a problem called clustering, where we try to separate our data into unlabeled groups based on which points are close to each other. 
+
+We also want to be able to visualize our data. It's hard to think in 11 dimensions, (at least for me) so we'll try a technique called dimensionality reduction. We're trying to plot our points in 2 dimensions so that points that are close to each other in the 11-dimensional space are close to each other here, and faraway points stay faraway. A popular dimensionality reduction algorithm from the `scikit-learn` package is called `t-SNE`. We can run it:
+
+```
+from sklearn.manifold import TSNE
+X = library.drop(['song_title','artist'], axis=1).values
+model = TSNE(random_state=0)
+fit = pd.DataFrame(model.fit_transform(X))
+```
+
+Now each point as an x- and y-coordinate for its mapping in 2-dimensional space. We want to add that to our DataFrame:
+```
+library['TSNE-X'] = fit[0]
+library['TSNE-Y'] = fit[1]
+```
+
+And we can plot it:
+
+```
+from matplotlib.pylab import scatter
+x = library['TSNE-X']
+y = library['TSNE-Y']
+scatter(x, y,c='black',s=5)
+```
+
+If we want to make sense of what we see, we might want to know what part of the plot contains the danceable songs. To do that, we can use `pyplot.colorbar`:
+
+```
+from matplotlib.pyplot import colorbar
+c = library['danceability']
+p = scatter(x, y,c=c,s=5)
+colorbar(p)
+```
+
+Now let's try clustering. One of the simplest clustering algorithms is called `k-Means`. To run it, you have to specify `k`, the number of clusters you want to separate the data into. This is an important decision, so think carefully! Then run
+
+```
+from sklearn.cluster import KMeans
+kmeans = KMeans(n_clusters=5, random_state=0).fit_predict(X)
+```
+
+Let's add it to our DataFrame:
+```
+library['cluster'] = kmeans
+```
+
+Let's see where those clusters are in the 2-dimensional embedding:
+
+```
+c=library['cluster']
+p= scatter(x, y,c=c,s=5)
+colorbar(p)
+```
+
+If you want to see what is really different about these groups, we can look at their average attribute values with 
+
+```
+library.groupby(['cluster']).mean()
+```
+
+If you want to know even more about this plot, like what song is represented by each data point, I recommend using `plotly`, a package that allows for interactive plots in a notebook file. Run `pip3 install plotly` or `conda install plotly` in your terminal. Then import what you need:
+
+```
+from plotly.offline import init_notebook_mode, iplot
+import plotly.graph_objs as go
+```
+
+Then you have to initialize your notebook as an interactive environment for the plots:
+```
+init_notebook_mode(connected=True)
+```
+
+And now you're ready to plot! Try
+
+```
+trace = go.Scatter(
+    x = library['TSNE-X'],
+    y = library['TSNE-Y'],
+    mode = 'markers',
+    text = library['song_title'] + " - " + library['artist'],
+    marker=dict(
+        color = library['cluster'], #set color equal to a variable
+        colorscale='Viridis',
+        showscale=True
+    )
+)
+data = [trace]
+iplot(data)
+```
+
+![Clusters Plot!](clusters.png)
 
 ## Conclusion
 
