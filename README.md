@@ -38,7 +38,7 @@ There are a lot of ways to have python installed on your machine, and many of th
 
 If you don't have a Spotify account, or are having trouble with this section, you can download `harry.csv` and play with my library! However, if you want to use your own library, follow these instructions:
 
-Go to https://developer.spotify.com/dashboard and make a client.
+Go to https://developer.spotify.com/dashboard and make a client. The name doesn't matter, and just click through to indicate you're not going to sell this. Once the client is made, click "Edit Settings" in the top right, and add a new Redirect URI: https://www.spotify.com
 
 For this project, we recommend working in a Jupyter notebook. In order to do this, navigate to a folder you want to do work in and type 
 ```
