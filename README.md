@@ -36,6 +36,8 @@ There are a lot of ways to have python installed on your machine, and many of th
 
 ## Getting the Data
 
+If you don't have a Spotify account, or are having trouble with this section, you can download `harry.csv` and play with my library! However, if you want to use your own library, follow these instructions:
+
 Go to https://developer.spotify.com/dashboard and make a client.
 
 For this project, we recommend working in a Jupyter notebook. In order to do this, navigate to a folder you want to do work in and type 
@@ -522,7 +524,7 @@ model = TSNE(random_state=0)
 fit = pd.DataFrame(model.fit_transform(X))
 ```
 
-Now each point as an x- and y-coordinate for its mapping in 2-dimensional space. We want to add that to our DataFrame:
+The `random_state` variable just sets the seed, so it will behave the same way every time. Now each point as an x- and y-coordinate for its mapping in 2-dimensional space. We want to add that to our DataFrame:
 ```
 library['TSNE-X'] = fit[0]
 library['TSNE-Y'] = fit[1]
